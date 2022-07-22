@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  description: Pet API
+  version: 0.0.1
+  title: Pet API
+paths:
+  /pet:
+    post:
+      tags:
+        - Pets
+      summary: Create a new Pet
+      description: Creates a new Pet
+      operationId: createPet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetAttributes'
+        required: true
+      responses:
+        201:
+          description: Pet Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetEntity'
+        400:
+          description: Bad Request
+    get:
+      tags:
+        - Pets
+      summary: Gets all existing Pets
+      description: Gets all existing Pets
+      operationId: getAllPets
+      responses:
+        200:
+          description: Succesfull Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PetEntity'
+  /pet/{petId}:
+    delete:
+      tags:
+        - Pets
+      summary: Deletes a Pet
+      description: Deletes a Pet
+      operationId: deletePet
+      parameters:
+        - $ref: '#/components/parameters/petId'
+      responses:
+        200:
+          description: Succesfull Operation
+components:
+  schemas:
+    PetAttributes:
+      type: object
+      required:
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        age:
+          type: integer
+    PetEntity:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+      allOf:
+        - $ref: '#/components/schemas/PetAttributes'
+  parameters:
+    petId:
+      in: path
+      name: petId
+      description: Id of the Pet
+      required: true
+      schema:
+        type: integer

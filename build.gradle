@@ -1,10 +1,20 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath('io.kokuwa.micronaut:micronaut-openapi-codegen:2.2.1')
+    }
+}
+
 plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("io.micronaut.application") version "3.4.1"
+    id("org.openapi.generator") version "5.3.0"
 }
 
 version = "0.1"
-group = "com.example"
+group = "com.eduardo.msa"
 
 repositories {
     mavenCentral()
@@ -35,11 +45,15 @@ dependencies {
 
     testImplementation("org.mockito:mockito-core")
 
+    implementation("javax.inject:javax.inject:1")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
+
 }
 
 
 application {
-    mainClass.set("com.example.Application")
+    mainClass.set("com.eduardo.msa.Application")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
@@ -52,9 +66,21 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("com.example.*")
+        annotations("com.eduardo.msa.*")
     }
 }
+
+openApiGenerate {
+    generatorName = "micronaut"
+    inputSpec = "$rootDir/api/spec.yaml".toString()
+    outputDir = "$buildDir/generated".toString()
+    apiPackage = "com.eduardo.msa.api"
+    invokerPackage = "com.eduardo.msa.invoker"
+    modelPackage = "com.eduardo.msa.model"
+}
+
+compileJava.dependsOn tasks.openApiGenerate
+sourceSets.main.java.srcDirs += "$buildDir/generated/generated-sources/openapi"
 
 
 
