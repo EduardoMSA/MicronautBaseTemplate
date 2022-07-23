@@ -1,0 +1,28 @@
+version: '3.9'
+services:
+  db:
+    container_name: db
+    image: mysql/mysql-server:8.0.29
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=demo
+      - MYSQL_USER=demo
+      - MYSQL_PASSWORD=password
+  gradle:
+    container_name: gradle
+    image: gradle:7.5.0-jdk17-alpine
+    working_dir: /home/eduardo/msa
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_SCHEMA=demo
+      - DB_USER=demo
+      - DB_PASSWORD=password
+      - MICRONAUT_ENVIRONMENTS=default
+    command: sh -c "./gradlew clean test -Dmicronaut.env.deduction=false"
+    volumes:
+      - ${DIR}:/home/eduardo/msa

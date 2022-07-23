@@ -25,6 +25,7 @@ dependencies {
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
     annotationProcessor("io.micronaut:micronaut-http-validation")
     annotationProcessor("io.micronaut.openapi:micronaut-openapi")
+    testAnnotationProcessor("io.micronaut:micronaut-inject-java")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut:micronaut-jackson-databind")
     implementation("io.micronaut.data:micronaut-data-jdbc")
@@ -32,6 +33,9 @@ dependencies {
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("io.swagger.core.v3:swagger-annotations")
     implementation("jakarta.annotation:jakarta.annotation-api")
+    implementation("javax.inject:javax.inject:1")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("mysql:mysql-connector-java")
@@ -39,15 +43,14 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mysql")
     testImplementation("org.testcontainers:testcontainers")
-    compileOnly("org.graalvm.nativeimage:svm")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("io.micronaut.test:micronaut-test-junit5:3.4.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:{junitVersion}")
 
     implementation("io.micronaut:micronaut-validation")
 
     testImplementation("org.mockito:mockito-core")
-
-    implementation("javax.inject:javax.inject:1")
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
+    testImplementation('com.h2database:h2:1.3.148')
 
 }
 
@@ -55,18 +58,25 @@ dependencies {
 application {
     mainClass.set("com.eduardo.msa.Application")
 }
+
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
     targetCompatibility = JavaVersion.toVersion("17")
 }
 
-graalvmNative.toolchainDetection = false
 micronaut {
     runtime("jetty")
-    testRuntime("junit5")
     processing {
         incremental(true)
         annotations("com.eduardo.msa.*")
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs "$buildDir/generated/generated-sources/openapi"
+        }
     }
 }
 
@@ -79,8 +89,13 @@ openApiGenerate {
     modelPackage = "com.eduardo.msa.model"
 }
 
-compileJava.dependsOn tasks.openApiGenerate
-sourceSets.main.java.srcDirs += "$buildDir/generated/generated-sources/openapi"
+compileJava {
+    dependsOn(tasks.openApiGenerate)
+}
+
+test {
+    useJUnitPlatform()
+}
 
 
 

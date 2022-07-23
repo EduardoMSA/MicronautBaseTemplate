@@ -3,10 +3,10 @@ micronaut:
     name: demo
 datasources:
   default:
-    url: jdbc:mysql://localhost:3306/demo
+    url: jdbc:mysql://${db.host:localhost}:${db.port:3306}/${db.schema:demo}
     driverClassName: com.mysql.cj.jdbc.Driver
-    username: demo
-    password: 'password'
+    username: ${db.user:demo}
+    password: ${db.password:password}
 #    schema-generate: CREATE_DROP
     dialect: MYSQL
 
